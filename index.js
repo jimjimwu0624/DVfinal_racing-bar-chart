@@ -6,7 +6,7 @@ function define(runtime, observer) {
     main.builtin("FileAttachment", runtime.fileAttachments(name => fileAttachments.get(name)));
     main.variable(observer()).define(["md"], function(md) {
         return (
-            md `# Bar Chart Race`
+            md `# Top 10 Diseases Cause of Death`
         )
     });
     main.variable(observer("viewof replay")).define("viewof replay", ["html"], function(html) {
@@ -45,7 +45,30 @@ function define(runtime, observer) {
             await transition.end();
         }
     });
-
+    main.variable(observer()).define(["md"], function(md) {
+        return (
+            md `# Description #
+            Certain infectious and parasitic diseases :　傳染病、寄生蟲  
+            Neoplasms :　腫瘤　
+            Diseases of the blood and blood-forming organs and certain disorders involving the immune mechanism :　血液、造血器官、免疫疾病
+            Endocrine, nutritional and metabolic diseases :　內分泌、營養、代謝疾病
+            Mental and behavioural disorders :　精神疾病及行為障礙
+            Diseases of the nervous system :　神經系統疾病
+            Diseases of the circulatory system :　循環系統疾病
+            Diseases of the respiratory system :　呼吸系統疾病
+            Diseases of the digestive system :　消化系統疾病
+            Diseases of the skin and subcutaneous tissue :　皮膚及皮下組織疾病
+            Diseases of the musculoskeletal system and connective tissue :　肌肉骨骼系統及結締組織疾病
+            Diseases of the genitourinary system :　泌尿生殖系統疾病
+            Certain conditions originating in the perinatal period :　源於周產期(從孕22~28周之間)的疾病
+            Congenital malformations, deformations and chromosomal abnormalities :　先天性畸形，變形和染色體異常
+            Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified :　異常症狀及檢查結果
+            External causes of morbidity and mortality :　發病的外部原因
+            Pregnancy, childbirth and the puerperium :　懷孕、分娩、產期
+            Diseases of the eye and adnexa :　眼睛及附件疾病
+            Diseases of the ear and mastoid process :　耳朵及乳突疾病`
+        )
+    });
     main.define("duration", function() {
         return (
             20
@@ -53,7 +76,7 @@ function define(runtime, observer) {
     });
 
 
-    main.variable(observer()).define(["data"], function(data) {
+    main.define(["data"], function(data) {
         return (
             data
         )
@@ -63,23 +86,23 @@ function define(runtime, observer) {
             d3.csvParse(await FileAttachment("finaldata3.csv").text(), d3.autoType)
         )
     });
-    main.variable(observer()).define(["d3", "data"], function(d3, data) {
+    main.define(["d3", "data"], function(d3, data) {
         return (
             d3.group(data, d => d.name)
         )
     });
 
-    main.variable(observer()).define(["data"], function(data) {
+    main.define(["data"], function(data) {
         return (
             data.filter(d => d.name === "Pregnancy, childbirth and the puerperium")
         )
     });
-    main.variable(observer()).define(["data"], function(data) {
+    main.define(["data"], function(data) {
         return (
             data.filter(d => d.name === "Diseases of the eye and adnexa")
         )
     });
-    main.variable(observer()).define(["data"], function(data) {
+    main.define(["data"], function(data) {
         return (
             data.filter(d => d.name === "Diseases of the ear and mastoid process")
         )
@@ -91,13 +114,13 @@ function define(runtime, observer) {
         )
     });
 
-    main.variable(observer("names")).define("names", ["data"], function(data) {
+    main.define("names", ["data"], function(data) {
         return (
             new Set(data.map(d => d.name))
         )
     });
 
-    main.variable(observer("datevalues")).define("datevalues", ["d3", "data"], function(d3, data) {
+    main.define("datevalues", ["d3", "data"], function(d3, data) {
         return (
             Array.from(d3.rollup(data, ([d]) => d.value, d => +d.date, d => d.name))
             .map(([date, data]) => [new Date(date), data])
@@ -116,7 +139,7 @@ function define(runtime, observer) {
         )
     });
 
-    main.variable(observer()).define(["rank", "datevalues"], function(rank, datevalues) {
+    main.define(["rank", "datevalues"], function(rank, datevalues) {
         return (
             rank(name => datevalues[0][1].get(name))
         )
@@ -128,7 +151,7 @@ function define(runtime, observer) {
         )
     });
 
-    main.variable(observer("keyframes")).define("keyframes", ["d3", "datevalues", "k", "rank"], function(d3, datevalues, k, rank) {
+    main.define("keyframes", ["d3", "datevalues", "k", "rank"], function(d3, datevalues, k, rank) {
         const keyframes = [];
         let ka, a, kb, b;
         for ([
@@ -147,17 +170,17 @@ function define(runtime, observer) {
         return keyframes;
     });
 
-    main.variable(observer("nameframes")).define("nameframes", ["d3", "keyframes"], function(d3, keyframes) {
+    main.define("nameframes", ["d3", "keyframes"], function(d3, keyframes) {
         return (
             d3.groups(keyframes.flatMap(([, data]) => data), d => d.name)
         )
     });
-    main.variable(observer("prev")).define("prev", ["nameframes", "d3"], function(nameframes, d3) {
+    main.define("prev", ["nameframes", "d3"], function(nameframes, d3) {
         return (
             new Map(nameframes.flatMap(([, data]) => d3.pairs(data, (a, b) => [b, a])))
         )
     });
-    main.variable(observer("next")).define("next", ["nameframes", "d3"], function(nameframes, d3) {
+    main.define("next", ["nameframes", "d3"], function(nameframes, d3) {
         return (
             new Map(nameframes.flatMap(([, data]) => d3.pairs(data)))
         )
@@ -269,9 +292,10 @@ function define(runtime, observer) {
                 const now = svg.append("text")
                     .style("font", `bold ${barSize}px var(--sans-serif)`)
                     .style("font-variant-numeric", "tabular-nums")
+                    .style("font-size", 60)
                     .attr("text-anchor", "end")
-                    .attr("x", width - 6)
-                    .attr("y", margin.top + barSize * (n - 0.45))
+                    .attr("x", width - 200)
+                    .attr("y", margin.top + barSize * (n - 0.45) - 30)
                     .attr("dy", "0.32em")
                     .text(formatDate(keyframes[0][0]));
 
@@ -284,7 +308,7 @@ function define(runtime, observer) {
 
     main.define("formatDate", ["d3"], function(d3) {
         return (
-            d3.utcFormat("%Y")
+            d3.utcFormat("%Y-%m")
         )
     });
 
@@ -300,7 +324,7 @@ function define(runtime, observer) {
 
     main.define("x", ["d3", "margin", "width"], function(d3, margin, width) {
         return (
-            d3.scaleLinear([0, 1], [margin.left, width - margin.right])
+            d3.scaleLinear([0, 1], [margin.left, width - margin.right - 220])
         )
     });
 
